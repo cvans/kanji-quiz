@@ -5,213 +5,126 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Kanji Recall Quiz</title>
   <style>
-    :root {
+    :root{
       color-scheme: dark;
-      --bg: #0b0c10;
-      --panel: #10131b;
-      --panel2: #0f1219;
-      --border: #242b3f;
-      --text: #e9eef5;
-      --muted: #a9b4c8;
-      --muted2: #93a0b8;
-      --accent: #3a63ff;
-      --good: #2bb673;
-      --bad: #ff4d6d;
+      --bg:#0b0c10;
+      --panel:#10131b;
+      --panel2:#0f1219;
+      --border:#242b3f;
+      --text:#e9eef5;
+      --muted:#a9b4c8;
+      --muted2:#93a0b8;
+      --accent:#3a63ff;
+      --warn:#ff4d6d;
     }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      -webkit-text-size-adjust: 100%;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      -webkit-text-size-adjust:100%;
+      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
-
-    .wrap {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 12px;
-      display: grid;
-      gap: 12px;
+    .wrap{max-width:920px;margin:0 auto;padding:12px;display:grid;gap:12px}
+    header{
+      display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+      padding:10px 12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;
     }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      padding: 10px 12px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
+    header h1{font-size:16px;margin:0;letter-spacing:.2px}
+    header .meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .pill{
+      display:inline-block;padding:6px 10px;border-radius:999px;
+      border:1px solid var(--border);background:var(--panel2);color:var(--muted);
+      font-size:12px;line-height:1;white-space:nowrap;
     }
+    .pill.marked{border-color:rgba(255,77,109,.45);background:rgba(255,77,109,.10);color:#ffd0da}
 
-    header h1 {
-      font-size: 16px;
-      margin: 0;
-      letter-spacing: 0.2px;
+    main{display:grid;gap:12px}
+    @media (min-width:860px){ main{grid-template-columns:360px 1fr;align-items:start} }
+
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
+    input[type="text"],select{
+      width:100%;background:var(--panel2);color:var(--text);
+      border:1px solid var(--border);border-radius:12px;padding:12px;outline:none;
+      font-size:16px; /* iOS: prevents zoom */
     }
+    .help{margin-top:6px;font-size:12px;color:var(--muted2);line-height:1.35}
 
-    header .meta {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    @media (max-width:420px){ .row{grid-template-columns:1fr} }
+
+    button{
+      width:100%;
+      border-radius:12px;
+      padding:12px;
+      border:1px solid var(--border);
+      background:#172040;
+      color:var(--text);
+      font-size:15px;
+      cursor:pointer;
+      touch-action:manipulation;
     }
+    button.secondary{background:var(--panel2)}
+    button.warn{background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.35)}
+    button:disabled{opacity:.45;cursor:not-allowed}
 
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--panel2);
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1;
-      white-space: nowrap;
+    .status{margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap}
+
+    .flash{
+      display:grid;place-items:center;
+      min-height:min(62vh,520px);
+      padding:14px;border-radius:18px;border:1px solid var(--border);
+      background:radial-gradient(1100px 500px at 50% -10%, rgba(58,99,255,.25) 0%, rgba(16,19,27,1) 55%);
+      text-align:center;
     }
-
-    main {
-      display: grid;
-      gap: 12px;
+    .kanji{font-size:clamp(64px,12vw,110px);line-height:1;margin:0}
+    .pos{margin-top:10px;font-size:13px;color:var(--muted)}
+    .answer{margin-top:18px;font-size:clamp(18px,3.2vw,26px);font-weight:600}
+    .hint{margin-top:16px;font-size:12px;color:var(--muted2);line-height:1.35}
+    .kbd{
+      border:1px solid var(--border);
+      border-bottom-width:2px;
+      background:var(--panel2);
+      padding:2px 6px;border-radius:8px;font-size:12px;color:var(--muted);
+      display:inline-block;
     }
+    footer{font-size:12px;color:var(--muted2);padding:0 2px 6px}
 
-    /* On wider screens, put controls next to card */
-    @media (min-width: 860px) {
-      main { grid-template-columns: 360px 1fr; align-items: start; }
+    /* Report dialog */
+    dialog{
+      width:min(920px, calc(100% - 24px));
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:0;
+      background:var(--panel);
+      color:var(--text);
     }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
+    dialog::backdrop{background:rgba(0,0,0,.55)}
+    .dlg-head{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      padding:12px 12px;border-bottom:1px solid var(--border);
     }
-
-    label {
-      display: block;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 10px 0 6px;
+    .dlg-head h2{margin:0;font-size:14px}
+    .dlg-body{padding:12px}
+    .grid-report{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:10px;
     }
-
-    input[type="text"], select {
-      width: 100%;
-      background: var(--panel2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      outline: none;
-      font-size: 16px; /* important for iOS: prevents zoom */
+    .item{
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px;
+      display:grid;
+      grid-template-columns: 52px 1fr;
+      gap:10px;
+      align-items:center;
     }
-
-    .help {
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--muted2);
-      line-height: 1.35;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .row3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    /* Mobile: buttons stack nicer */
-    @media (max-width: 420px) {
-      .row { grid-template-columns: 1fr; }
-      .row3 { grid-template-columns: 1fr; }
-    }
-
-    button {
-      width: 100%;
-      border-radius: 12px;
-      padding: 12px 12px;
-      border: 1px solid var(--border);
-      background: #172040;
-      color: var(--text);
-      font-size: 15px;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    button.secondary { background: var(--panel2); }
-    button.good { background: rgba(43,182,115,0.16); border-color: rgba(43,182,115,0.35); }
-    button.bad { background: rgba(255,77,109,0.14); border-color: rgba(255,77,109,0.35); }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .status {
-      margin-top: 10px;
-      font-size: 12px;
-      color: var(--muted);
-      white-space: pre-wrap;
-    }
-
-    .flash {
-      display: grid;
-      place-items: center;
-      min-height: min(62vh, 520px);
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: radial-gradient(1100px 500px at 50% -10%, rgba(58,99,255,0.25) 0%, rgba(16,19,27,1) 55%);
-      text-align: center;
-    }
-
-    .kanji {
-      font-size: clamp(64px, 12vw, 110px);
-      line-height: 1;
-      margin: 0;
-    }
-
-    .pos {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .answer {
-      margin-top: 18px;
-      font-size: clamp(18px, 3.2vw, 26px);
-      font-weight: 600;
-    }
-
-    .hint {
-      margin-top: 16px;
-      font-size: 12px;
-      color: var(--muted2);
-      line-height: 1.35;
-    }
-
-    .kbd {
-      border: 1px solid var(--border);
-      border-bottom-width: 2px;
-      background: var(--panel2);
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-size: 12px;
-      color: var(--muted);
-      display: inline-block;
-    }
-
-    footer {
-      font-size: 12px;
-      color: var(--muted2);
-      padding: 0 2px 6px;
-    }
+    .item .n{color:var(--muted);font-size:12px}
+    .item .k{font-size:28px;line-height:1}
+    .item .kw{color:var(--muted);font-size:12px;margin-top:6px;word-break:break-word}
   </style>
 </head>
 <body>
@@ -222,7 +135,7 @@
         <span class="pill" id="datasetPill">Dataset: 0</span>
         <span class="pill" id="sessionPill">Session: 0</span>
         <span class="pill" id="progressPill">Card: 0/0</span>
-        <span class="pill" id="scorePill">Score: 0/0</span>
+        <span class="pill" id="markedCountPill">Marked: 0</span>
         <span class="pill" id="markPill">Mark: —</span>
       </div>
     </header>
@@ -232,7 +145,7 @@
         <label>Selection (positions)</label>
         <input id="rangeInput" type="text" inputmode="numeric" autocomplete="off"
                placeholder="e.g. 1-100, 250-280, 512" />
-        <div class="help">Comma-separated ranges and single numbers. Only positions present in your embedded dataset are used.</div>
+        <div class="help">Comma-separated ranges and single numbers. Only positions present in the embedded dataset are used.</div>
 
         <label>Selection (individual kanji)</label>
         <input id="kanjiInput" type="text" autocomplete="off"
@@ -247,18 +160,17 @@
 
         <div class="row">
           <button id="startBtn">Start / Restart</button>
-          <button id="resetBtn" class="secondary">Reset session</button>
-        </div>
-
-        <div class="row3">
-          <button id="prevBtn" class="secondary" disabled>Prev</button>
-          <button id="showBtn" class="secondary" disabled>Show</button>
-          <button id="nextBtn" class="secondary" disabled>Next</button>
+          <button id="reportBtn" class="secondary" disabled>Report</button>
         </div>
 
         <div class="row">
-          <button id="correctBtn" class="good" disabled>Correct</button>
-          <button id="wrongBtn" class="bad" disabled>Wrong</button>
+          <button id="prevBtn" class="secondary" disabled>Previous</button>
+          <button id="nextBtn" disabled>Next</button>
+        </div>
+
+        <div class="row">
+          <button id="toggleMarkBtn" class="warn" disabled>Toggle mark</button>
+          <div></div>
         </div>
 
         <div class="status" id="status"></div>
@@ -276,19 +188,34 @@
           </div>
         </div>
         <footer>
-          Keyboard: <span class="kbd">←</span>/<span class="kbd">→</span> prev/next,
-          <span class="kbd">Space</span> show/hide,
-          <span class="kbd">Y</span>/<span class="kbd">N</span> correct/wrong
+          Keyboard:
+          <span class="kbd">←</span> previous,
+          <span class="kbd">→</span>/<span class="kbd">Enter</span> next (show/advance),
+          <span class="kbd">M</span> toggle mark,
+          <span class="kbd">R</span> report
         </footer>
       </section>
     </main>
   </div>
 
+  <dialog id="reportDialog">
+    <div class="dlg-head">
+      <h2 id="reportTitle">Marked kanji</h2>
+      <button id="closeReportBtn" class="secondary" style="width:auto;padding:10px 12px;">Close</button>
+    </div>
+    <div class="dlg-body">
+      <div class="help" id="reportSummary" style="margin:0 0 10px;"></div>
+      <div class="grid-report" id="reportGrid"></div>
+      <div class="help" id="reportEmpty" style="display:none;margin-top:10px;">
+        No marked items yet.
+      </div>
+    </div>
+  </dialog>
+
 <script>
 /**
  * Paste your JSON dataset here.
  * Format: [{ "pos": 1, "kanji": "人", "keyword": "person" }, ...]
- * Tip: keep it sorted by pos, but it's not required.
  */
 const DATASET = [
   /* PASTE YOUR JSON ARRAY HERE */
@@ -20298,9 +20225,9 @@ const DATASET = [
 <script>
 (() => {
   /** @typedef {{pos:number, kanji:string, keyword:string}} Entry */
-  /** @typedef {{queue:number[], index:number, revealed:boolean, correct:number, wrong:number, answered: Record<number, "c"|"w">}} Session */
+  /** @typedef {{queue:number[], index:number, revealed:boolean, marked: Record<number, true>}} Session */
 
-  const LS_SESSION = "kanjiRecall.session.v3";
+  const LS_SESSION = "kanjiRecall.session.v6";
 
   const el = (id) => document.getElementById(id);
   const ui = {
@@ -20308,29 +20235,35 @@ const DATASET = [
     kanjiInput: el("kanjiInput"),
     orderSelect: el("orderSelect"),
     startBtn: el("startBtn"),
-    resetBtn: el("resetBtn"),
+    reportBtn: el("reportBtn"),
+
     prevBtn: el("prevBtn"),
-    showBtn: el("showBtn"),
     nextBtn: el("nextBtn"),
-    correctBtn: el("correctBtn"),
-    wrongBtn: el("wrongBtn"),
+    toggleMarkBtn: el("toggleMarkBtn"),
     status: el("status"),
 
     datasetPill: el("datasetPill"),
     sessionPill: el("sessionPill"),
     progressPill: el("progressPill"),
-    scorePill: el("scorePill"),
+    markedCountPill: el("markedCountPill"),
     markPill: el("markPill"),
 
     cardKanji: el("cardKanji"),
     cardPos: el("cardPos"),
     cardAnswer: el("cardAnswer"),
     cardHint: el("cardHint"),
+
+    reportDialog: el("reportDialog"),
+    closeReportBtn: el("closeReportBtn"),
+    reportTitle: el("reportTitle"),
+    reportSummary: el("reportSummary"),
+    reportGrid: el("reportGrid"),
+    reportEmpty: el("reportEmpty"),
   };
 
-  function setStatus(msg) { ui.status.textContent = msg; }
+  function setStatus(msg){ ui.status.textContent = msg; }
 
-  function sanitizeDataset(raw) {
+  function sanitizeDataset(raw){
     if (!Array.isArray(raw)) return [];
     const parsed = raw
       .map(x => ({
@@ -20340,11 +20273,10 @@ const DATASET = [
       }))
       .filter(x => Number.isFinite(x.pos) && x.pos > 0 && x.kanji.length > 0);
 
-    // Dedup by pos (first wins)
-    parsed.sort((a,b) => a.pos - b.pos);
+    parsed.sort((a,b)=>a.pos-b.pos);
     const seen = new Set();
     const out = [];
-    for (const e of parsed) {
+    for (const e of parsed){
       if (seen.has(e.pos)) continue;
       seen.add(e.pos);
       out.push(e);
@@ -20352,151 +20284,211 @@ const DATASET = [
     return out;
   }
 
-  /** @param {Entry[]} dataset */
-  function indexDataset(dataset) {
+  function indexDataset(dataset){
     const byPos = new Map();
     const byKanji = new Map();
-    for (const e of dataset) {
+    for (const e of dataset){
       byPos.set(e.pos, e);
       byKanji.set(e.kanji, e);
     }
     return { byPos, byKanji };
   }
 
-  function normalizeKanjiList(text) {
-    return (text || "").replace(/,/g, " ")
-      .split(/\s+/)
-      .map(s => s.trim())
-      .filter(Boolean);
+  function normalizeKanjiList(text){
+    return (text||"").replace(/,/g," ")
+      .split(/\s+/).map(s=>s.trim()).filter(Boolean);
   }
 
-  /** parse "1-10, 20, 33-35" -> Set<number> */
-  function parseRanges(text) {
+  function parseRanges(text){
     const out = new Set();
-    const parts = (text || "").split(",").map(p => p.trim()).filter(Boolean);
-    for (const part of parts) {
+    const parts = (text||"").split(",").map(p=>p.trim()).filter(Boolean);
+    for (const part of parts){
       const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
-      if (m) {
-        const a = parseInt(m[1], 10);
-        const b = parseInt(m[2], 10);
+      if (m){
+        const a = parseInt(m[1],10), b = parseInt(m[2],10);
         const lo = Math.min(a,b), hi = Math.max(a,b);
-        for (let i = lo; i <= hi; i++) out.add(i);
-      } else if (/^\d+$/.test(part)) {
-        out.add(parseInt(part, 10));
+        for (let i=lo;i<=hi;i++) out.add(i);
+      } else if (/^\d+$/.test(part)){
+        out.add(parseInt(part,10));
       }
     }
     return out;
   }
 
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+  function shuffle(arr){
+    for (let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
     }
     return arr;
   }
 
-  function loadSession() {
-    try {
+  function loadSession(){
+    try{
       const raw = localStorage.getItem(LS_SESSION);
       if (!raw) return null;
       const s = JSON.parse(raw);
       if (!s || !Array.isArray(s.queue)) return null;
+      if (!s.marked) s.marked = {};
       return s;
     } catch { return null; }
   }
 
-  function saveSession(session) {
+  function saveSession(session){
     localStorage.setItem(LS_SESSION, JSON.stringify(session));
   }
 
-  function clearSession() {
-    localStorage.removeItem(LS_SESSION);
-  }
-
-  function buildSelection(dataset) {
+  function buildSelection(dataset){
     const { byPos, byKanji } = indexDataset(dataset);
     const rangeSet = parseRanges(ui.rangeInput.value);
     const kanjiList = normalizeKanjiList(ui.kanjiInput.value);
 
-    const selectedPos = new Set();
-
-    for (const p of rangeSet) if (byPos.has(p)) selectedPos.add(p);
-    for (const k of kanjiList) {
+    const selected = new Set();
+    for (const p of rangeSet) if (byPos.has(p)) selected.add(p);
+    for (const k of kanjiList){
       const e = byKanji.get(k);
-      if (e) selectedPos.add(e.pos);
+      if (e) selected.add(e.pos);
     }
 
-    const list = Array.from(selectedPos).sort((a,b) => a - b);
+    const list = Array.from(selected).sort((a,b)=>a-b);
     if (ui.orderSelect.value === "random") shuffle(list);
     return list;
   }
 
-  function startQuiz(dataset) {
+  function startQuiz(dataset){
     const queue = buildSelection(dataset);
     if (!queue.length) return null;
+
     /** @type {Session} */
-    const session = { queue, index: 0, revealed: false, correct: 0, wrong: 0, answered: {} };
+    const session = { queue, index: 0, revealed: false, marked: {} };
     saveSession(session);
     return session;
   }
 
-  function clampIndex(session, idx) {
+  function clampIndex(session, idx){
     return Math.max(0, Math.min(idx, session.queue.length - 1));
   }
 
-  function currentPos(session) {
+  function currentPos(session){
     return session.queue[clampIndex(session, session.index)];
   }
 
-  function gotoIndex(session, idx) {
+  function gotoIndex(session, idx){
     session.index = clampIndex(session, idx);
     session.revealed = false; // hide on navigation
     saveSession(session);
   }
 
-  function prev(session) { gotoIndex(session, session.index - 1); }
-  function next(session) { gotoIndex(session, session.index + 1); }
+  function prev(session){ gotoIndex(session, session.index - 1); }
 
-  function toggleReveal(session) {
-    session.revealed = !session.revealed;
-    saveSession(session);
+  // Next behavior: reveal if hidden, otherwise advance and hide.
+  function next(session){
+    if (!session.revealed){
+      session.revealed = true;
+      saveSession(session);
+      return;
+    }
+    gotoIndex(session, session.index + 1);
   }
 
-  function mark(session, kind) {
+  function isMarked(session, pos){
+    return !!session?.marked?.[pos];
+  }
+
+  function toggleMark(session){
     const pos = currentPos(session);
     if (!pos) return;
-
-    const prev = session.answered[pos];
-    if (prev === "c") session.correct--;
-    if (prev === "w") session.wrong--;
-
-    session.answered[pos] = kind;
-    if (kind === "c") session.correct++;
-    if (kind === "w") session.wrong++;
-
+    if (session.marked[pos]) delete session.marked[pos];
+    else session.marked[pos] = true;
     saveSession(session);
   }
 
-  function updateUI(dataset, session) {
+  function markedCount(session){
+    return session?.marked ? Object.keys(session.marked).length : 0;
+  }
+
+  function openReport(dataset, session){
+    if (!session || !session.queue.length) return;
+    const { byPos } = indexDataset(dataset);
+
+    const markedPositions = Object.keys(session.marked || {})
+      .map(n => parseInt(n,10))
+      .filter(n => Number.isFinite(n))
+      .sort((a,b)=>a-b);
+
+    ui.reportGrid.innerHTML = "";
+
+    if (!markedPositions.length){
+      ui.reportEmpty.style.display = "block";
+      ui.reportSummary.textContent = "";
+    } else {
+      ui.reportEmpty.style.display = "none";
+      ui.reportSummary.textContent = `${markedPositions.length} marked item(s).`;
+
+      for (const pos of markedPositions){
+        const entry = byPos.get(pos);
+        const kanji = entry?.kanji ?? "???";
+        const kw = entry?.keyword ?? "(no keyword stored)";
+
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div>
+            <div class="n">#${pos}</div>
+            <div class="k">${kanji}</div>
+          </div>
+          <div>
+            <div class="pill marked" style="padding:4px 8px;">Marked</div>
+            <div class="kw">${escapeHtml(kw)}</div>
+          </div>
+        `;
+        ui.reportGrid.appendChild(div);
+      }
+    }
+
+    ui.reportTitle.textContent = "Marked kanji";
+    if (typeof ui.reportDialog.showModal === "function") ui.reportDialog.showModal();
+    else ui.reportDialog.setAttribute("open", "open");
+  }
+
+  function closeReport(){
+    if (ui.reportDialog.open) ui.reportDialog.close();
+    else ui.reportDialog.removeAttribute("open");
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[ch]));
+  }
+
+  function updateUI(dataset, session){
     ui.datasetPill.textContent = `Dataset: ${dataset.length}`;
     ui.sessionPill.textContent = `Session: ${session ? session.queue.length : 0}`;
+    ui.markedCountPill.textContent = `Marked: ${session ? markedCount(session) : 0}`;
 
-    if (!dataset.length) {
-      setStatus("Dataset is empty. Paste your JSON into DATASET in the HTML file.");
-    } else if (!session) {
+    if (!dataset.length){
+      setStatus("Dataset is empty. Paste JSON into DATASET in the HTML file.");
+    } else if (!session){
       setStatus("Ready. Enter selection and press Start.");
-    } else if (!session.queue.length) {
+    } else if (!session.queue.length){
       setStatus("No cards in this session. Adjust selection and press Start.");
     } else {
       setStatus("");
     }
 
-    if (!session || !session.queue.length) {
-      ui.progressPill.textContent = "Card: 0/0";
-      ui.scorePill.textContent = "Score: 0/0";
-      ui.markPill.textContent = "Mark: —";
+    const hasSession = !!(session && session.queue.length);
+    ui.reportBtn.disabled = !hasSession || markedCount(session) === 0;
 
+    ui.prevBtn.disabled = !hasSession || session.index <= 0;
+    ui.nextBtn.disabled = !hasSession;
+
+    ui.toggleMarkBtn.disabled = !hasSession;
+
+    if (!hasSession){
+      ui.progressPill.textContent = "Card: 0/0";
+      ui.markPill.textContent = "Mark: —";
+      ui.markPill.classList.remove("marked");
       ui.cardKanji.textContent = "—";
       ui.cardPos.textContent = "";
       ui.cardAnswer.style.display = "none";
@@ -20504,12 +20496,6 @@ const DATASET = [
       ui.cardHint.innerHTML = dataset.length
         ? "Use <span class='kbd'>Start</span> to begin."
         : "Edit the <span class='kbd'>DATASET</span> in the HTML file, then reload.";
-
-      ui.prevBtn.disabled = true;
-      ui.showBtn.disabled = true;
-      ui.nextBtn.disabled = true;
-      ui.correctBtn.disabled = true;
-      ui.wrongBtn.disabled = true;
       return;
     }
 
@@ -20517,68 +20503,98 @@ const DATASET = [
     const pos = currentPos(session);
     const entry = byPos.get(pos);
 
-    const markVal = session.answered[pos];
-    ui.markPill.textContent = `Mark: ${markVal === "c" ? "Correct" : markVal === "w" ? "Wrong" : "—"}`;
-
     ui.progressPill.textContent = `Card: ${session.index + 1}/${session.queue.length}`;
-    ui.scorePill.textContent = `Score: ${session.correct}/${session.correct + session.wrong}`;
+
+    const marked = isMarked(session, pos);
+    ui.markPill.textContent = marked ? "Mark: Marked" : "Mark: —";
+    ui.markPill.classList.toggle("marked", marked);
+    ui.toggleMarkBtn.textContent = marked ? "Unmark" : "Mark";
 
     ui.cardKanji.textContent = entry?.kanji ?? "???";
     ui.cardPos.textContent = `#${pos}`;
+
     ui.cardAnswer.textContent = entry?.keyword ? entry.keyword : "(no keyword stored)";
     ui.cardAnswer.style.display = session.revealed ? "block" : "none";
     ui.cardHint.textContent = session.revealed
-      ? "Mark correct/wrong, or navigate."
-      : "Recall the keyword, then reveal.";
-
-    ui.prevBtn.disabled = session.index <= 0;
-    ui.nextBtn.disabled = session.index >= session.queue.length - 1;
-    ui.showBtn.disabled = false;
-    ui.correctBtn.disabled = !session.revealed;
-    ui.wrongBtn.disabled = !session.revealed;
+      ? "If you missed it, mark it. Next again to advance."
+      : "Recall the keyword, then press Next to reveal.";
   }
 
-  // Load embedded dataset (no UI editing)
+  // Embedded dataset only
   const dataset = sanitizeDataset(typeof DATASET === "undefined" ? [] : DATASET);
-
-  // Restore session if compatible with selection dataset
   let session = loadSession();
-  // If session exists but points outside dataset (pos missing), we still allow it (shows ???).
-  // User can restart session any time.
 
-  // Wire up controls
+  // Controls
   ui.startBtn.addEventListener("click", () => {
-    if (!dataset.length) { setStatus("Dataset is empty. Paste JSON into DATASET and reload."); return; }
+    if (!dataset.length){ setStatus("Dataset is empty. Paste JSON into DATASET and reload."); return; }
     const s = startQuiz(dataset);
-    if (!s) { setStatus("No cards selected. Try a range like 1-100."); return; }
+    if (!s){ setStatus("No cards selected. Try a range like 1-100."); return; }
     session = s;
     updateUI(dataset, session);
   });
 
-  ui.resetBtn.addEventListener("click", () => {
-    clearSession();
-    session = null;
+  ui.prevBtn.addEventListener("click", () => {
+    if (!session) return;
+    prev(session);
     updateUI(dataset, session);
   });
 
-  ui.prevBtn.addEventListener("click", () => { if (!session) return; prev(session); updateUI(dataset, session); });
-  ui.nextBtn.addEventListener("click", () => { if (!session) return; next(session); updateUI(dataset, session); });
-  ui.showBtn.addEventListener("click", () => { if (!session) return; toggleReveal(session); updateUI(dataset, session); });
-  ui.correctBtn.addEventListener("click", () => { if (!session) return; mark(session, "c"); updateUI(dataset, session); });
-  ui.wrongBtn.addEventListener("click", () => { if (!session) return; mark(session, "w"); updateUI(dataset, session); });
-
-  // Keyboard shortcuts
-  window.addEventListener("keydown", (e) => {
-    if (!session || !session.queue.length) return;
-
-    if (e.key === "ArrowLeft") { e.preventDefault(); prev(session); updateUI(dataset, session); return; }
-    if (e.key === "ArrowRight") { e.preventDefault(); next(session); updateUI(dataset, session); return; }
-    if (e.key === " " || e.code === "Space") { e.preventDefault(); toggleReveal(session); updateUI(dataset, session); return; }
-    if (e.key.toLowerCase() === "y") { mark(session, "c"); updateUI(dataset, session); return; }
-    if (e.key.toLowerCase() === "n") { mark(session, "w"); updateUI(dataset, session); return; }
+  ui.nextBtn.addEventListener("click", () => {
+    if (!session) return;
+    next(session);
+    updateUI(dataset, session);
   });
 
-  // First render
+  ui.toggleMarkBtn.addEventListener("click", () => {
+    if (!session) return;
+    toggleMark(session);
+    updateUI(dataset, session);
+  });
+
+  ui.reportBtn.addEventListener("click", () => openReport(dataset, session));
+  ui.closeReportBtn.addEventListener("click", closeReport);
+  ui.reportDialog.addEventListener("click", (e) => {
+    const rect = ui.reportDialog.getBoundingClientRect();
+    const inDialog =
+      e.clientX >= rect.left && e.clientX <= rect.right &&
+      e.clientY >= rect.top && e.clientY <= rect.bottom;
+    if (!inDialog) closeReport();
+  });
+
+  // Keyboard
+  window.addEventListener("keydown", (e) => {
+    const key = e.key;
+
+    if (key.toLowerCase() === "r"){
+      if (session && markedCount(session) > 0){ e.preventDefault(); openReport(dataset, session); }
+      return;
+    }
+
+    if (!session || !session.queue.length) return;
+
+    if (key === "ArrowLeft"){
+      e.preventDefault();
+      prev(session);
+      updateUI(dataset, session);
+      return;
+    }
+
+    if (key === "ArrowRight" || key === "Enter"){
+      e.preventDefault();
+      next(session);
+      updateUI(dataset, session);
+      return;
+    }
+
+    if (key.toLowerCase() === "m"){
+      e.preventDefault();
+      toggleMark(session);
+      updateUI(dataset, session);
+      return;
+    }
+  });
+
+  // Initial render
   updateUI(dataset, session);
 })();
 </script>
